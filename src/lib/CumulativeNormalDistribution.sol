@@ -30,15 +30,15 @@ library CumulativeNormalDistribution {
     /// @return The inverse CDF value
     function getInverseCDF(int128 p) internal pure returns (int128) {
         require(p > 0 && p < ONE, "Invalid probability");
-        
+
         // For p = 0.5, return 0
         if (p == HALF) return 0;
-        
+
         // For p < 0.5, use negative of inverse CDF of 1-p
         if (p < HALF) {
             return -getInverseCDF(ONE.sub(p));
         }
-        
+
         // Simple approximation for inverse CDF
         return simpleInverseCDF(p);
     }
@@ -61,14 +61,14 @@ library CumulativeNormalDistribution {
         if (x < 0) {
             return TWO.sub(erfc(-x));
         }
-        
+
         if (x >= 6) return 0;
-        
+
         // Very simple approximation to avoid overflow
         if (x >= 2) {
             return exp(-x.mul(x)).div(x.mul(2));
         }
-        
+
         // For small x, use simple approximation
         return ONE.sub(x.mul(x).div(2));
     }
@@ -92,7 +92,7 @@ library CumulativeNormalDistribution {
         int128 q = p.sub(HALF);
         int128 sign = q >= 0 ? ONE : -ONE;
         q = q >= 0 ? q : -q;
-        
+
         // Simple linear approximation
         return sign.mul(q.mul(2));
     }
@@ -128,4 +128,4 @@ library CumulativeNormalDistribution {
     function div(int128 x, int128 y) internal pure returns (int128) {
         return ABDKMath64x64.div(x, y);
     }
-} 
+}

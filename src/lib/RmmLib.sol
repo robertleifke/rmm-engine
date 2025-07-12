@@ -15,7 +15,6 @@ struct PoolPreCompute {
     uint256 tau_;
 }
 
-
 function computeLnSDivK(uint256 S, uint256 strike_) pure returns (int256) {
     return SolstatFixedPointMathLib.lnWad(int256(S.divWadDown(strike_)));
 }
@@ -358,48 +357,43 @@ function computeTfDReserveY(bytes memory args, uint256 rY) pure returns (int256)
     return result;
 }
 
-function calcMaxPtIn(
-    uint256 reserveX_,
-        uint256 reserveY_,
-        uint256 totalLiquidity_,
-        uint256 strike_
-    ) pure returns (uint256) {
-        uint256 low = 0;
-        uint256 high = reserveY_ - 1;
+function calcMaxPtIn(uint256 reserveX_, uint256 reserveY_, uint256 totalLiquidity_, uint256 strike_)
+    pure
+    returns (uint256)
+{
+    uint256 low = 0;
+    uint256 high = reserveY_ - 1;
 
-        while (low != high) {
-            uint256 mid = (low + high + 1) / 2;
-            if (calcSlope(reserveX_, reserveY_, totalLiquidity_, strike_, int256(mid)) < 0) {
-                high = mid - 1;
-            } else {
-                low = mid;
-            }
+    while (low != high) {
+        uint256 mid = (low + high + 1) / 2;
+        if (calcSlope(reserveX_, reserveY_, totalLiquidity_, strike_, int256(mid)) < 0) {
+            high = mid - 1;
+        } else {
+            low = mid;
         }
-
-        return low;
     }
 
-function calcSlope(
-    uint256 reserveX_,
-    uint256 reserveY_,
-    uint256 totalLiquidity_,
-    uint256 strike_,
-    int256 ptToMarket
-) pure returns (int256) {
+    return low;
+}
+
+function calcSlope(uint256 reserveX_, uint256 reserveY_, uint256 totalLiquidity_, uint256 strike_, int256 ptToMarket)
+    pure
+    returns (int256)
+{
     uint256 newReserveY = reserveY_ + uint256(ptToMarket);
     uint256 b_i = newReserveY * 1e36 / (strike_ * totalLiquidity_);
 
     if (b_i > 1e18) {
         return -1;
     }
-    
+
     int256 b = Gaussian.ppf(toInt(b_i));
     int256 pdf_b = Gaussian.pdf(b);
-    
+
     int256 slope = (int256(strike_ * totalLiquidity_) * pdf_b / 1e36);
-    
+
     int256 dxdy = computedXdY(reserveX_, newReserveY);
-    
+
     return slope + dxdy;
 }
 
@@ -412,22 +406,17 @@ function calcMaxPtOut(
     uint256 tau_
 ) pure returns (uint256) {
     int256 currentTF = computeTradingFunction(reserveX_, reserveY_, totalLiquidity_, strike_, sigma_, tau_);
-    
+
     uint256 maxProportion = uint256(int256(1e18) - currentTF) * 1e18 / (2 * 1e18);
-    
+
     uint256 maxPtOut = reserveY_ * maxProportion / 1e18;
-    
+
     return (maxPtOut * 999) / 1000;
 }
 
-
-function computedXdY(
-    uint256 reserveX_,
-    uint256 reserveY_
-) pure returns (int256) {
+function computedXdY(uint256 reserveX_, uint256 reserveY_) pure returns (int256) {
     return -int256(reserveX_) * 1e18 / int256(reserveY_);
 }
-
 
 /// @dev Casts an unsigned integer to a signed integer, reverting if `x` is too large.
 function toInt(uint256 x) pure returns (int256) {

@@ -17,17 +17,17 @@ contract RMM is ERC20 {
 
     using SafeTransferLib for ERC20;
 
-    ERC20 public tokenX;  // Arbitrary ERC-20 token
-    ERC20 public tokenY;  // Arbitrary ERC-20 token
+    ERC20 public tokenX; // Arbitrary ERC-20 token
+    ERC20 public tokenY; // Arbitrary ERC-20 token
 
-    uint256 public sigma;  // Volatility parameter
-    uint256 public fee;    // Swap fee
-    uint256 public maturity;  // Timestamp of pool expiration
+    uint256 public sigma; // Volatility parameter
+    uint256 public fee; // Swap fee
+    uint256 public maturity; // Timestamp of pool expiration
 
-    uint256 public reserveX;  // Reserve of tokenX
-    uint256 public reserveY;  // Reserve of tokenY
-    uint256 public totalLiquidity;  // Total liquidity in the pool
-    uint256 public strike;  // Strike price of the pool
+    uint256 public reserveX; // Reserve of tokenX
+    uint256 public reserveY; // Reserve of tokenY
+    uint256 public totalLiquidity; // Total liquidity in the pool
+    uint256 public strike; // Strike price of the pool
 
     uint256 public lastTimestamp;
     uint256 public lastImpliedPrice;
@@ -41,9 +41,15 @@ contract RMM is ERC20 {
         _lock = 1;
     }
 
-    constructor(string memory name_, string memory symbol_, address tokenX_, address tokenY_, uint256 sigma_, uint256 fee_, uint256 maturity_)
-        ERC20(name_, symbol_, 18)
-    {
+    constructor(
+        string memory name_,
+        string memory symbol_,
+        address tokenX_,
+        address tokenY_,
+        uint256 sigma_,
+        uint256 fee_,
+        uint256 maturity_
+    ) ERC20(name_, symbol_, 18) {
         tokenX = ERC20(tokenX_);
         tokenY = ERC20(tokenY_);
         sigma = sigma_;
@@ -74,7 +80,18 @@ contract RMM is ERC20 {
         _debit(address(tokenX), amountX);
         _debit(address(tokenY), amountY);
 
-        emit Init(msg.sender, address(tokenX), address(tokenY), amountX, amountY, totalLiquidity_, strike_, sigma, fee, maturity);
+        emit Init(
+            msg.sender,
+            address(tokenX),
+            address(tokenY),
+            amountX,
+            amountY,
+            totalLiquidity_,
+            strike_,
+            sigma,
+            fee,
+            maturity
+        );
     }
 
     // Simpler swap function for tokenX to tokenY

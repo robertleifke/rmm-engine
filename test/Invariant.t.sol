@@ -9,19 +9,19 @@ import {CumulativeNormalDistribution} from "../src/lib/CumulativeNormalDistribut
 contract ReplicationMathTest is Test {
     function testUnitsFunctions() public {
         console.log("Testing Units functions directly");
-        
+
         uint256 sigma = 10000;
         uint256 tau = 31536000;
-        
+
         console.log("sigma:", sigma);
         console.log("tau:", tau);
-        
+
         int128 sigmaX64 = Units.percentageToX64(sigma);
         console.log("sigmaX64:", sigmaX64);
-        
+
         int128 tauYears = Units.toYears(tau);
         console.log("tauYears:", tauYears);
-        
+
         int128 sqrtTau = Units.sqrt(tauYears);
         console.log("sqrtTau:", sqrtTau);
     }
@@ -44,7 +44,7 @@ contract ReplicationMathTest is Test {
         uint256 strike = 1e18;
         uint256 sigma = 10000;
         uint256 tau = 31536000;
-        
+
         console.log("Calling getStableGivenRisky with:");
         console.log("invariantLastX64:", invariantLastX64);
         console.log("scaleFactorRisky:", scaleFactorRisky);
@@ -53,15 +53,9 @@ contract ReplicationMathTest is Test {
         console.log("strike:", strike);
         console.log("sigma:", sigma);
         console.log("tau:", tau);
-        
+
         uint256 stablePerLiquidity = ReplicationMath.getStableGivenRisky(
-            invariantLastX64,
-            scaleFactorRisky,
-            scaleFactorStable,
-            riskyPerLiquidity,
-            strike,
-            sigma,
-            tau
+            invariantLastX64, scaleFactorRisky, scaleFactorStable, riskyPerLiquidity, strike, sigma, tau
         );
         // Should be between 0 and strike
         assertLe(stablePerLiquidity, strike);
@@ -76,7 +70,7 @@ contract ReplicationMathTest is Test {
         uint256 strike = 1e18;
         uint256 sigma = 10000;
         uint256 tau = 31536000;
-        
+
         console.log("Calling calcInvariant with:");
         console.log("scaleFactorRisky:", scaleFactorRisky);
         console.log("scaleFactorStable:", scaleFactorStable);
@@ -85,38 +79,32 @@ contract ReplicationMathTest is Test {
         console.log("strike:", strike);
         console.log("sigma:", sigma);
         console.log("tau:", tau);
-        
+
         int128 invariantX64 = ReplicationMath.calcInvariant(
-            scaleFactorRisky,
-            scaleFactorStable,
-            riskyPerLiquidity,
-            stablePerLiquidity,
-            strike,
-            sigma,
-            tau
+            scaleFactorRisky, scaleFactorStable, riskyPerLiquidity, stablePerLiquidity, strike, sigma, tau
         );
-        
+
         console.log("invariantX64:", invariantX64);
-        
+
         // With simplified implementation, just check it's not extremely large
         assertLt(abs(invariantX64), 1e20);
     }
-    
+
     function abs(int128 x) internal pure returns (int128) {
         return x >= 0 ? x : -x;
     }
 
     function testCumulativeNormalDistribution() public {
         console.log("Testing CumulativeNormalDistribution functions directly");
-        
+
         // Test with a simple value
         int128 x = 0;
         int128 cdf = CumulativeNormalDistribution.getCDF(x);
         console.log("CDF(0):", cdf);
-        
+
         // Test inverse CDF with a simple value
         int128 p = 0x8000000000000000; // 0.5 in fixed point
         int128 invCdf = CumulativeNormalDistribution.getInverseCDF(p);
         console.log("Inverse CDF(0.5):", invCdf);
     }
-} 
+}

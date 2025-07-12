@@ -6,7 +6,7 @@ import "./CumulativeNormalDistribution.sol";
 import "./Units.sol";
 
 /// @title   Invariant Math
-/// @author  @robertleifke 
+/// @author  @robertleifke
 /// @notice  Covered call strategy implemented from ReplicationMath.sol by Primitive
 library ReplicationMath {
     using ABDKMath64x64 for int128;
@@ -56,9 +56,8 @@ library ReplicationMath {
             int128 stableX64 = ABDKMath64x64.add(ABDKMath64x64.mul(strikeX64, input.getCDF()), invariantLastX64);
             stablePerLiquidity = stableX64.scaleFromX64(scaleFactorStable);
         } else {
-            stablePerLiquidity = (ABDKMath64x64.add(ABDKMath64x64.mul(strikeX64, oneMinusRiskyX64), invariantLastX64)).scaleFromX64(
-                scaleFactorStable
-            );
+            stablePerLiquidity = (ABDKMath64x64.add(ABDKMath64x64.mul(strikeX64, oneMinusRiskyX64), invariantLastX64))
+                .scaleFromX64(scaleFactorStable);
         }
     }
 
@@ -78,15 +77,8 @@ library ReplicationMath {
         uint256 sigma,
         uint256 tau
     ) internal pure returns (int128 invariantX64) {
-        uint256 output = getStableGivenRisky(
-            0,
-            scaleFactorRisky,
-            scaleFactorStable,
-            riskyPerLiquidity,
-            strike,
-            sigma,
-            tau
-        );
+        uint256 output =
+            getStableGivenRisky(0, scaleFactorRisky, scaleFactorStable, riskyPerLiquidity, strike, sigma, tau);
         int128 outputX64 = output.scaleToX64(scaleFactorStable);
         int128 stableX64 = stablePerLiquidity.scaleToX64(scaleFactorStable);
         invariantX64 = ABDKMath64x64.sub(stableX64, outputX64);

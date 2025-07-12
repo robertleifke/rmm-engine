@@ -19,21 +19,13 @@ function abs(int256 input) pure returns (uint256 output) {
 }
 
 /// @dev From solmate@v7, changes last `div` to `sdiv`.
-function muli(
-    int256 x,
-    int256 y,
-    int256 denominator
-) pure returns (int256 z) {
+function muli(int256 x, int256 y, int256 denominator) pure returns (int256 z) {
     assembly {
         // Store x * y in z for now.
         z := mul(x, y)
 
         // Equivalent to require(denominator != 0 && (x == 0 || (x * y) / x == y))
-        if iszero(
-            and(iszero(iszero(denominator)), or(iszero(x), eq(sdiv(z, x), y)))
-        ) {
-            revert(0, 0)
-        }
+        if iszero(and(iszero(iszero(denominator)), or(iszero(x), eq(sdiv(z, x), y)))) { revert(0, 0) }
 
         // Divide z by the denominator.
         z := sdiv(z, denominator)
@@ -79,7 +71,7 @@ library Units {
     function sqrt(int128 x) internal pure returns (int128) {
         if (x < 0) revert();
         if (x == 0) return 0;
-        
+
         int128 z = (x + 1) / 2;
         int128 y = x;
         while (z < y) {
@@ -113,4 +105,4 @@ library WadMath {
     function expWad(int256 x) internal pure returns (int256) {
         return wadExp(x);
     }
-} 
+}
