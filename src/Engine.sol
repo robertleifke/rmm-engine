@@ -91,7 +91,7 @@ contract RMM is ERC20 {
         reserveY -= amountY;
 
         // Adjust the pool reserves and state
-        _adjust(int256(amountX), -int256(amountY), deltaLiquidity);
+        _adjust(int256(amountX), -int256(amountY), deltaLiquidity, strike);
 
         // Perform the token transfers
         _debit(address(tokenX), amountX);

@@ -24,7 +24,7 @@ library ReplicationMath {
     function getProportionalVolatility(uint256 sigma, uint256 tau) internal pure returns (int128 vol) {
         int128 sqrtTauX64 = tau.toYears().sqrt();
         int128 sigmaX64 = sigma.percentageToX64();
-        vol = sigmaX64.mul(sqrtTauX64);
+        vol = ABDKMath64x64.mul(sigmaX64, sqrtTauX64);
     }
 
     /// @notice                 Uses riskyPerLiquidity and invariant to calculate stablePerLiquidity
@@ -48,15 +48,15 @@ library ReplicationMath {
     ) internal pure returns (uint256 stablePerLiquidity) {
         int128 strikeX64 = strike.scaleToX64(scaleFactorStable);
         int128 riskyX64 = riskyPerLiquidity.scaleToX64(scaleFactorRisky); // mul by 2^64, div by precision
-        int128 oneMinusRiskyX64 = ONE_INT.sub(riskyX64);
+        int128 oneMinusRiskyX64 = ABDKMath64x64.sub(ONE_INT, riskyX64);
         if (tau != 0) {
             int128 volX64 = getProportionalVolatility(sigma, tau);
             int128 phi = oneMinusRiskyX64.getInverseCDF();
-            int128 input = phi.sub(volX64);
-            int128 stableX64 = strikeX64.mul(input.getCDF()).add(invariantLastX64);
+            int128 input = ABDKMath64x64.sub(phi, volX64);
+            int128 stableX64 = ABDKMath64x64.add(ABDKMath64x64.mul(strikeX64, input.getCDF()), invariantLastX64);
             stablePerLiquidity = stableX64.scaleFromX64(scaleFactorStable);
         } else {
-            stablePerLiquidity = (strikeX64.mul(oneMinusRiskyX64).add(invariantLastX64)).scaleFromX64(
+            stablePerLiquidity = (ABDKMath64x64.add(ABDKMath64x64.mul(strikeX64, oneMinusRiskyX64), invariantLastX64)).scaleFromX64(
                 scaleFactorStable
             );
         }
@@ -89,6 +89,6 @@ library ReplicationMath {
         );
         int128 outputX64 = output.scaleToX64(scaleFactorStable);
         int128 stableX64 = stablePerLiquidity.scaleToX64(scaleFactorStable);
-        invariantX64 = stableX64.sub(outputX64);
+        invariantX64 = ABDKMath64x64.sub(stableX64, outputX64);
     }
 }

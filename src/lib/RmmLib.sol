@@ -2,12 +2,12 @@
 pragma solidity ^0.8.13;
 
 import {Gaussian} from "solstat/Gaussian.sol";
-import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
+import {FixedPointMathLib as SolstatFixedPointMathLib} from "lib/solstat/lib/solmate/src/utils/FixedPointMathLib.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {ToUintOverflow, ToIntOverflow} from "./RmmErrors.sol";
 
-using FixedPointMathLib for uint256;
-using FixedPointMathLib for int256;
+using SolstatFixedPointMathLib for uint256;
+using SolstatFixedPointMathLib for int256;
 
 struct PoolPreCompute {
     uint256 reserveInAsset;
@@ -17,12 +17,12 @@ struct PoolPreCompute {
 
 
 function computeLnSDivK(uint256 S, uint256 strike_) pure returns (int256) {
-    return int256(S.divWadDown(strike_)).lnWad();
+    return SolstatFixedPointMathLib.lnWad(int256(S.divWadDown(strike_)));
 }
 
 /// @dev Computes σ√τ given `sigma_` σ and `tau` τ.
 function computeSigmaSqrtTau(uint256 sigma_, uint256 tau_) pure returns (uint256) {
-    uint256 sqrtTau = FixedPointMathLib.sqrt(tau_) * 1e9; // 1e9 is the precision of the square root function
+    uint256 sqrtTau = SolstatFixedPointMathLib.sqrt(tau_) * 1e9; // 1e9 is the precision of the square root function
     return sigma_.mulWadUp(sqrtTau);
 }
 
@@ -458,17 +458,17 @@ function sum(uint256 a, int256 b) pure returns (uint256) {
 
 /// @dev Converts native decimal amount to WAD amount, rounding down.
 function upscale(uint256 amount, uint256 scalingFactor) pure returns (uint256) {
-    return FixedPointMathLib.mulWadDown(amount, scalingFactor);
+    return SolstatFixedPointMathLib.mulWadDown(amount, scalingFactor);
 }
 
 /// @dev Converts a WAD amount to a native DECIMAL amount, rounding down.
 function downscaleDown(uint256 amount, uint256 scalar_) pure returns (uint256) {
-    return FixedPointMathLib.divWadDown(amount, scalar_);
+    return SolstatFixedPointMathLib.divWadDown(amount, scalar_);
 }
 
 /// @dev Converts a WAD amount to a native DECIMAL amount, rounding up.
 function downscaleUp(uint256 amount, uint256 scalar_) pure returns (uint256) {
-    return FixedPointMathLib.divWadUp(amount, scalar_);
+    return SolstatFixedPointMathLib.divWadUp(amount, scalar_);
 }
 
 /// @dev Casts a positived signed integer to an unsigned integer, reverting if `x` is negative.
@@ -491,7 +491,7 @@ function abs(int256 x) pure returns (int256) {
 function scalar(address token) view returns (uint256) {
     uint256 decimals = ERC20(token).decimals();
     uint256 difference = 18 - decimals;
-    return FixedPointMathLib.WAD * 10 ** difference;
+    return SolstatFixedPointMathLib.WAD * 10 ** difference;
 }
 
 function isASmallerApproxB(uint256 a, uint256 b, uint256 eps) pure returns (bool) {
