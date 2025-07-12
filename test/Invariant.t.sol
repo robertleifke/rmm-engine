@@ -8,7 +8,7 @@ import {Units} from "../src/lib/Units.sol";
 import {CumulativeNormalDistribution} from "../src/lib/CumulativeNormalDistribution.sol";
 
 contract ReplicationMathTest is Test {
-    function testUnitsFunctions() public {
+    function testUnitsFunctions() public pure {
         console.log("Testing Units functions directly");
 
         uint256 sigma = 10000;
@@ -27,7 +27,7 @@ contract ReplicationMathTest is Test {
         console.log("sqrtTau:", sqrtTau);
     }
 
-    function testGetProportionalVolatility() public {
+    function testGetProportionalVolatility() public pure {
         // sigma = 10000 (100%), tau = 31536000 (1 year in seconds)
         uint256 sigma = 10000;
         uint256 tau = 31536000;
@@ -36,7 +36,7 @@ contract ReplicationMathTest is Test {
         assertGt(vol, 0);
     }
 
-    function testGetStableGivenRisky() public {
+    function testGetStableGivenRisky() public pure {
         console.log("Starting testGetStableGivenRisky");
         int128 invariantLastX64 = 0;
         uint256 scaleFactorRisky = 1e18;
@@ -62,7 +62,7 @@ contract ReplicationMathTest is Test {
         assertLe(stablePerLiquidity, strike);
     }
 
-    function testCalcInvariant() public {
+    function testCalcInvariant() public pure {
         console.log("Starting testCalcInvariant");
         uint256 scaleFactorRisky = 1e18;
         uint256 scaleFactorStable = 1e18;
@@ -95,7 +95,7 @@ contract ReplicationMathTest is Test {
         return x >= 0 ? x : -x;
     }
 
-    function testCumulativeNormalDistribution() public {
+    function testCumulativeNormalDistribution() public pure {
         console.log("Testing CumulativeNormalDistribution functions directly");
 
         // Test with a simple value

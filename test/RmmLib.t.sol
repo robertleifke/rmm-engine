@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
 
 contract RmmLibTest is Test {
-    function testBasicMath() public {
+    function testBasicMath() public pure {
         // Test basic arithmetic operations
         uint256 a = 2e18;
         uint256 b = 1e18;
@@ -18,7 +18,7 @@ contract RmmLibTest is Test {
         console.log("Basic math test passed");
     }
 
-    function testWadMath() public {
+    function testWadMath() public pure {
         // Test WAD math operations
         uint256 wad = 1e18;
         uint256 half = 5e17;
@@ -30,7 +30,7 @@ contract RmmLibTest is Test {
         console.log("WAD math test passed");
     }
 
-    function testTimeConversion() public {
+    function testTimeConversion() public pure {
         // Test time conversion
         uint256 oneYear = 365 days;
         uint256 oneDay = 1 days;
