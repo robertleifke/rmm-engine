@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
+import {console} from "forge-std/console.sol";
 import {ReplicationMath} from "../src/lib/Invariant.sol";
 import {Units} from "../src/lib/Units.sol";
 import {CumulativeNormalDistribution} from "../src/lib/CumulativeNormalDistribution.sol";
@@ -99,12 +100,12 @@ contract ReplicationMathTest is Test {
 
         // Test with a simple value
         int128 x = 0;
-        int128 cdf = CumulativeNormalDistribution.getCDF(x);
+        int128 cdf = CumulativeNormalDistribution.getCdf(x);
         console.log("CDF(0):", cdf);
 
         // Test inverse CDF with a simple value
         int128 p = 0x8000000000000000; // 0.5 in fixed point
-        int128 invCdf = CumulativeNormalDistribution.getInverseCDF(p);
+        int128 invCdf = CumulativeNormalDistribution.getInverseCdf(p);
         console.log("Inverse CDF(0.5):", invCdf);
     }
 }

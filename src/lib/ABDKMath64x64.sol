@@ -6,10 +6,10 @@ pragma solidity ^0.8.4;
 /// @author ABDK Consulting
 library ABDKMath64x64 {
     /// @dev Minimum value signed 64.64-bit fixed point number may have.
-    int128 private constant MIN_64x64 = -0x80000000000000000000000000000000;
+    int128 private constant MIN_64X64 = -0x80000000000000000000000000000000;
 
     /// @dev Maximum value signed 64.64-bit fixed point number may have.
-    int128 private constant MAX_64x64 = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+    int128 private constant MAX_64X64 = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
 
     /// @dev Convert signed 256-bit integer number into signed 64.64-bit fixed point
     /// number.  Revert on overflow.
@@ -52,7 +52,7 @@ library ABDKMath64x64 {
     /// @return signed 64.64-bit fixed point number
     function from128x128(int256 x) internal pure returns (int128) {
         int256 result = x >> 64;
-        require(result >= MIN_64x64 && result <= MAX_64x64);
+        require(result >= MIN_64X64 && result <= MAX_64X64);
         return int128(result);
     }
 
@@ -70,7 +70,7 @@ library ABDKMath64x64 {
     /// @return signed 64.64-bit fixed point number
     function add(int128 x, int128 y) internal pure returns (int128) {
         int256 result = int256(x) + y;
-        require(result >= MIN_64x64 && result <= MAX_64x64);
+        require(result >= MIN_64X64 && result <= MAX_64X64);
         return int128(result);
     }
 
@@ -80,7 +80,7 @@ library ABDKMath64x64 {
     /// @return signed 64.64-bit fixed point number
     function sub(int128 x, int128 y) internal pure returns (int128) {
         int256 result = int256(x) - y;
-        require(result >= MIN_64x64 && result <= MAX_64x64);
+        require(result >= MIN_64X64 && result <= MAX_64X64);
         return int128(result);
     }
 
@@ -90,7 +90,7 @@ library ABDKMath64x64 {
     /// @return signed 64.64-bit fixed point number
     function mul(int128 x, int128 y) internal pure returns (int128) {
         int256 result = (int256(x) * y) >> 64;
-        require(result >= MIN_64x64 && result <= MAX_64x64);
+        require(result >= MIN_64X64 && result <= MAX_64X64);
         return int128(result);
     }
 
@@ -100,7 +100,7 @@ library ABDKMath64x64 {
     /// @param y signed 256-bit integer number
     /// @return signed 256-bit integer number
     function muli(int128 x, int256 y) internal pure returns (int256) {
-        if (x == MIN_64x64 && y == type(int256).min) {
+        if (x == MIN_64X64 && y == type(int256).min) {
             revert();
         }
 
@@ -151,7 +151,7 @@ library ABDKMath64x64 {
     function div(int128 x, int128 y) internal pure returns (int128) {
         require(y != 0);
         int256 result = (int256(x) << 64) / y;
-        require(result >= MIN_64x64 && result <= MAX_64x64);
+        require(result >= MIN_64X64 && result <= MAX_64X64);
         return int128(result);
     }
 
@@ -191,7 +191,7 @@ library ABDKMath64x64 {
     function divu(uint256 x, uint256 y) internal pure returns (int128) {
         require(y != 0);
         uint128 result = divuu(x, y);
-        require(result <= uint128(MAX_64x64));
+        require(result <= uint128(MAX_64X64));
         return int128(result);
     }
 
@@ -454,7 +454,7 @@ library ABDKMath64x64 {
         }
 
         result >>= 63 - (uint256(int256(x)) >> 63);
-        require(int256(result) <= int256(MAX_64x64));
+        require(int256(result) <= int256(MAX_64X64));
 
         return int128(int256(result));
     }

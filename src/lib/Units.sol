@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "./ABDKMath64x64.sol";
+import {ABDKMath64x64} from "./ABDKMath64x64.sol";
 
 error Min();
 

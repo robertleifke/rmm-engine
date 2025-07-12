@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "./ABDKMath64x64.sol";
+import {ABDKMath64x64} from "./ABDKMath64x64.sol";
 
 /// @title Cumulative Normal Distribution
 /// @notice Provides CDF and inverse CDF functions for normal distribution
@@ -17,7 +17,7 @@ library CumulativeNormalDistribution {
     /// @notice Calculate the cumulative distribution function (CDF) of a standard normal distribution
     /// @param x The input value
     /// @return The CDF value
-    function getCDF(int128 x) internal pure returns (int128) {
+    function getCdf(int128 x) internal pure returns (int128) {
         if (x >= 0) {
             return HALF.add(erf(x.div(SQRT2)).mul(HALF));
         } else {
@@ -28,7 +28,7 @@ library CumulativeNormalDistribution {
     /// @notice Calculate the inverse cumulative distribution function (inverse CDF) of a standard normal distribution
     /// @param p The probability value (0 < p < 1)
     /// @return The inverse CDF value
-    function getInverseCDF(int128 p) internal pure returns (int128) {
+    function getInverseCdf(int128 p) internal pure returns (int128) {
         require(p > 0 && p < ONE, "Invalid probability");
 
         // For p = 0.5, return 0
@@ -36,11 +36,11 @@ library CumulativeNormalDistribution {
 
         // For p < 0.5, use negative of inverse CDF of 1-p
         if (p < HALF) {
-            return -getInverseCDF(ONE.sub(p));
+            return -getInverseCdf(ONE.sub(p));
         }
 
         // Simple approximation for inverse CDF
-        return simpleInverseCDF(p);
+        return simpleInverseCdf(p);
     }
 
     /// @notice Error function approximation using simple series
@@ -87,7 +87,7 @@ library CumulativeNormalDistribution {
     /// @notice Simple inverse CDF approximation
     /// @param p Probability value
     /// @return Inverse CDF value
-    function simpleInverseCDF(int128 p) internal pure returns (int128) {
+    function simpleInverseCdf(int128 p) internal pure returns (int128) {
         // Simple approximation for p > 0.5
         int128 q = p.sub(HALF);
         int128 sign = q >= 0 ? ONE : -ONE;

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.4;
 
-import "./ABDKMath64x64.sol";
-import "./CumulativeNormalDistribution.sol";
-import "./Units.sol";
+import {ABDKMath64x64} from "./ABDKMath64x64.sol";
+import {CumulativeNormalDistribution} from "./CumulativeNormalDistribution.sol";
+import {Units} from "./Units.sol";
 
 /// @title   Invariant Math
 /// @author  @robertleifke
@@ -51,9 +51,9 @@ library ReplicationMath {
         int128 oneMinusRiskyX64 = ABDKMath64x64.sub(ONE_INT, riskyX64);
         if (tau != 0) {
             int128 volX64 = getProportionalVolatility(sigma, tau);
-            int128 phi = oneMinusRiskyX64.getInverseCDF();
+            int128 phi = oneMinusRiskyX64.getInverseCdf();
             int128 input = ABDKMath64x64.sub(phi, volX64);
-            int128 stableX64 = ABDKMath64x64.add(ABDKMath64x64.mul(strikeX64, input.getCDF()), invariantLastX64);
+            int128 stableX64 = ABDKMath64x64.add(ABDKMath64x64.mul(strikeX64, input.getCdf()), invariantLastX64);
             stablePerLiquidity = stableX64.scaleFromX64(scaleFactorStable);
         } else {
             stablePerLiquidity = (ABDKMath64x64.add(ABDKMath64x64.mul(strikeX64, oneMinusRiskyX64), invariantLastX64))

@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
-import "forge-std/console2.sol";
+import {console2} from "forge-std/console2.sol";
 
 import "./lib/RmmLib.sol";
 import "./lib/RmmErrors.sol";
