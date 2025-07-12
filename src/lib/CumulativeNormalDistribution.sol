@@ -13,7 +13,6 @@ library CumulativeNormalDistribution {
     int128 internal constant HALF = 0x8000000000000000;
     int128 internal constant TWO = 0x20000000000000000;
     int128 internal constant SQRT2 = 0x16A09E667F3BCC90;
-    int128 internal constant SQRT_2PI = 0x2C5C85FDF473DE6B;
 
     /// @notice Calculate the cumulative distribution function (CDF) of a standard normal distribution
     /// @param x The input value
@@ -40,11 +39,11 @@ library CumulativeNormalDistribution {
             return -getInverseCDF(ONE.sub(p));
         }
         
-        // Use approximation for inverse CDF
-        return inverseCDFApproximation(p);
+        // Simple approximation for inverse CDF
+        return simpleInverseCDF(p);
     }
 
-    /// @notice Error function approximation
+    /// @notice Error function approximation using simple series
     /// @param x Input value
     /// @return Error function value
     function erf(int128 x) internal pure returns (int128) {
@@ -55,7 +54,7 @@ library CumulativeNormalDistribution {
         }
     }
 
-    /// @notice Complementary error function approximation
+    /// @notice Complementary error function using simple approximation
     /// @param x Input value
     /// @return Complementary error function value
     function erfc(int128 x) internal pure returns (int128) {
@@ -65,18 +64,13 @@ library CumulativeNormalDistribution {
         
         if (x >= 6) return 0;
         
-        int128 t = ONE.div(ONE.add(x.div(2)));
-        int128 u = t.mul(t);
+        // Very simple approximation to avoid overflow
+        if (x >= 2) {
+            return exp(-x.mul(x)).div(x.mul(2));
+        }
         
-        int128 result = t.mul(
-            -1265512230000000000 + 1000023680000000000 * u + 374091960000000000 * u.mul(u) + 
-            96784180000000000 * u.mul(u).mul(u) - 186288060000000000 * u.mul(u).mul(u).mul(u) +
-            278887070000000000 * u.mul(u).mul(u).mul(u).mul(u) - 1135203980000000000 * u.mul(u).mul(u).mul(u).mul(u).mul(u) +
-            1488515870000000000 * u.mul(u).mul(u).mul(u).mul(u).mul(u).mul(u) - 822152230000000000 * u.mul(u).mul(u).mul(u).mul(u).mul(u).mul(u).mul(u) +
-            170872770000000000 * u.mul(u).mul(u).mul(u).mul(u).mul(u).mul(u).mul(u).mul(u)
-        );
-        
-        return result.mul(exp(-x.mul(x)));
+        // For small x, use simple approximation
+        return ONE.sub(x.mul(x).div(2));
     }
 
     /// @notice Exponential function approximation
@@ -90,43 +84,17 @@ library CumulativeNormalDistribution {
         }
     }
 
-    /// @notice Inverse CDF approximation using numerical methods
+    /// @notice Simple inverse CDF approximation
     /// @param p Probability value
     /// @return Inverse CDF value
-    function inverseCDFApproximation(int128 p) internal pure returns (int128) {
-        // Use Newton-Raphson method for approximation
-        int128 x = 0;
-        int128 tolerance = 100000000;
-        int128 maxIterations = 10;
+    function simpleInverseCDF(int128 p) internal pure returns (int128) {
+        // Simple approximation for p > 0.5
+        int128 q = p.sub(HALF);
+        int128 sign = q >= 0 ? ONE : -ONE;
+        q = q >= 0 ? q : -q;
         
-        for (int128 i = 0; i < maxIterations; i = i.add(1)) {
-            int128 cdf = getCDF(x);
-            int128 pdf = getPDF(x);
-            
-            if (pdf == 0) break;
-            
-            int128 delta = p.sub(cdf).div(pdf);
-            x = x.add(delta);
-            
-            if ((delta < 0 ? -delta : delta) < tolerance) break;
-        }
-        
-        return x;
-    }
-
-    /// @notice Probability density function (PDF) of standard normal distribution
-    /// @param x Input value
-    /// @return PDF value
-    function getPDF(int128 x) internal pure returns (int128) {
-        int128 exponent = -x.mul(x).div(2);
-        return exp(exponent).div(SQRT_2PI);
-    }
-
-    /// @notice Absolute value function
-    /// @param x Input value
-    /// @return Absolute value
-    function abs(int128 x) internal pure returns (int128) {
-        return x >= 0 ? x : -x;
+        // Simple linear approximation
+        return sign.mul(q.mul(2));
     }
 
     /// @notice Addition function
