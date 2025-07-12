@@ -198,7 +198,7 @@ library ABDKMath64x64 {
     /// @dev Calculate binary logarithm of x.  Revert if x <= 0.
     /// @param x signed 64.64-bit fixed point number
     /// @return signed 64.64-bit fixed point number
-    function log_2(int128 x) internal pure returns (int128) {
+    function log2(int128 x) internal pure returns (int128) {
         require(x > 0);
 
         int256 msb = 0;
@@ -247,13 +247,13 @@ library ABDKMath64x64 {
     function ln(int128 x) internal pure returns (int128) {
         require(x > 0);
 
-        return int128(int256(log_2(x)) * 0xB17217F7D1CF79ABC9E3B39803F2F6AF >> 128);
+        return int128(int256(log2(x)) * 0xB17217F7D1CF79ABC9E3B39803F2F6AF >> 128);
     }
 
     /// @dev Calculate binary exponent of x.  Revert on overflow.
     /// @param x signed 64.64-bit fixed point number
     /// @return signed 64.64-bit fixed point number
-    function exp_2(int128 x) internal pure returns (int128) {
+    function exp2(int128 x) internal pure returns (int128) {
         require(x < 0x400000000000000000); // Overflow
 
         if (x < -0x400000000000000000) return 0; // Underflow
@@ -467,7 +467,7 @@ library ABDKMath64x64 {
 
         if (x < -0x400000000000000000) return 0; // Underflow
 
-        return exp_2(int128((int256(x) * 0x171547652B82FE1777D0FFDA0D23A7D12D >> 128) + 0x3FFF));
+        return exp2(int128((int256(x) * 0x171547652B82FE1777D0FFDA0D23A7D12D >> 128) + 0x3FFF));
     }
 
     /// @dev Calculate x / y rounding towards zero, where x and y are unsigned 256-bit

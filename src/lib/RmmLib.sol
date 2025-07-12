@@ -39,12 +39,12 @@ function computeTradingFunction(
     uint256 sigma_,
     uint256 tau_
 ) pure returns (int256) {
-    uint256 a_i = reserveX_ * 1e18 / liquidity;
+    uint256 aI = reserveX_ * 1e18 / liquidity;
 
-    uint256 b_i = reserveY_ * 1e36 / (strike_ * liquidity);
+    uint256 bI = reserveY_ * 1e36 / (strike_ * liquidity);
 
-    int256 a = Gaussian.ppf(toInt(a_i));
-    int256 b = Gaussian.ppf(toInt(b_i));
+    int256 a = Gaussian.ppf(toInt(aI));
+    int256 b = Gaussian.ppf(toInt(bI));
     int256 c = tau_ != 0 ? toInt(computeSigmaSqrtTau(sigma_, tau_)) : int256(0);
     return a + b + c;
 }
@@ -111,7 +111,7 @@ function computeL(uint256 reserveX_, uint256 liquidity, uint256 sigma_, uint256 
     return reserveX_ * 1 ether / toUint(1 ether - c);
 }
 
-function computeLGivenYK(
+function computeLGivenYk(
     uint256 reserveX_,
     uint256 reserveY_,
     uint256 liquidity,
@@ -190,11 +190,11 @@ function solveL(PoolPreCompute memory comp, uint256 initialLiquidity, uint256 re
 {
     bytes memory args = abi.encode(comp.reserveInAsset, reserveY_, comp.strike_, sigma_, comp.tau_);
     uint256 initialGuess =
-        computeLGivenYK(comp.reserveInAsset, reserveY_, initialLiquidity, comp.strike_, sigma_, comp.tau_);
+        computeLGivenYk(comp.reserveInAsset, reserveY_, initialLiquidity, comp.strike_, sigma_, comp.tau_);
     liquidity_ = findRootNewLiquidity(args, initialGuess, 20, 10);
 }
 
-function computeDeltaLXIn(
+function computeDeltaLxIn(
     uint256 amountIn,
     uint256 reserveX,
     uint256 reserveY,
@@ -209,7 +209,7 @@ function computeDeltaLXIn(
     deltaL = px.mulWadUp(totalLiquidity).mulWadUp(fees).divWadDown(px.mulWadDown(reserveX) + reserveY);
 }
 
-function computeDeltaLYOut(
+function computeDeltaLyOut(
     uint256 amountOut,
     uint256 reserveX,
     uint256 reserveY,
@@ -224,7 +224,7 @@ function computeDeltaLYOut(
     deltaL = px.mulWadUp(totalLiquidity).mulWadUp(fees).divWadDown(px.mulWadDown(reserveX) + reserveY);
 }
 
-function computeDeltaLYIn(
+function computeDeltaLyIn(
     uint256 amountIn,
     uint256 reserveX,
     uint256 reserveY,
@@ -244,25 +244,25 @@ function findRootNewLiquidity(bytes memory args, uint256 initialGuess, uint256 m
     returns (uint256 L)
 {
     L = initialGuess;
-    int256 L_next;
+    int256 lNext;
     int256 toleranceInt = int256(tolerance);
     for (uint256 i = 0; i < maxIterations; i++) {
-        int256 dfx = computeTfDL(args, L);
+        int256 dfx = computeTfDl(args, L);
         int256 fx = findL(args, L);
 
         if (dfx == 0) {
             // Handle division by zero
             break;
         }
-        L_next = int256(L) - (fx * 1e18) / dfx;
+        lNext = int256(L) - (fx * 1e18) / dfx;
 
-        int256 diff = int256(L) - L_next;
+        int256 diff = int256(L) - lNext;
         if (diff <= toleranceInt && diff >= -toleranceInt || fx <= toleranceInt && fx >= -toleranceInt) {
-            L = uint256(L_next);
+            L = uint256(lNext);
             break;
         }
 
-        L = uint256(L_next);
+        L = uint256(lNext);
     }
 }
 
@@ -271,7 +271,7 @@ function findRootNewX(bytes memory args, uint256 initialGuess, uint256 maxIterat
     returns (uint256 reserveX_)
 {
     reserveX_ = initialGuess;
-    int256 reserveX_next;
+    int256 reserveXNext;
     for (uint256 i = 0; i < maxIterations; i++) {
         int256 dfx = computeTfDReserveX(args, reserveX_);
         int256 fx = findX(args, reserveX_);
@@ -281,14 +281,14 @@ function findRootNewX(bytes memory args, uint256 initialGuess, uint256 maxIterat
             break;
         }
 
-        reserveX_next = int256(reserveX_) - fx * 1e18 / dfx;
+        reserveXNext = int256(reserveX_) - fx * 1e18 / dfx;
 
-        if (abs(int256(reserveX_) - reserveX_next) <= int256(tolerance) || abs(fx) <= int256(tolerance)) {
-            reserveX_ = uint256(reserveX_next);
+        if (abs(int256(reserveX_) - reserveXNext) <= int256(tolerance) || abs(fx) <= int256(tolerance)) {
+            reserveX_ = uint256(reserveXNext);
             break;
         }
 
-        reserveX_ = uint256(reserveX_next);
+        reserveX_ = uint256(reserveXNext);
     }
 }
 
@@ -297,7 +297,7 @@ function findRootNewY(bytes memory args, uint256 initialGuess, uint256 maxIterat
     returns (uint256 reserveY_)
 {
     reserveY_ = initialGuess;
-    int256 reserveY_next;
+    int256 reserveYNext;
     for (uint256 i = 0; i < maxIterations; i++) {
         int256 fx = findY(args, reserveY_);
         int256 dfx = computeTfDReserveY(args, reserveY_);
@@ -307,34 +307,34 @@ function findRootNewY(bytes memory args, uint256 initialGuess, uint256 maxIterat
             break;
         }
 
-        reserveY_next = int256(reserveY_) - fx * 1e18 / dfx;
+        reserveYNext = int256(reserveY_) - fx * 1e18 / dfx;
 
-        if (abs(int256(reserveY_) - reserveY_next) <= int256(tolerance) || abs(fx) <= int256(tolerance)) {
-            reserveY_ = uint256(reserveY_next);
+        if (abs(int256(reserveY_) - reserveYNext) <= int256(tolerance) || abs(fx) <= int256(tolerance)) {
+            reserveY_ = uint256(reserveYNext);
             break;
         }
 
-        reserveY_ = uint256(reserveY_next);
+        reserveY_ = uint256(reserveYNext);
     }
 }
 
-function computeTfDL(bytes memory args, uint256 L) pure returns (int256) {
+function computeTfDl(bytes memory args, uint256 L) pure returns (int256) {
     (uint256 rX, uint256 rY, uint256 K,,) = abi.decode(args, (uint256, uint256, uint256, uint256, uint256));
     int256 x = int256(rX);
     int256 y = int256(rY);
     int256 mu = int256(K);
-    int256 L_squared = int256(L.mulWadDown(L));
+    int256 lSquared = int256(L.mulWadDown(L));
 
     int256 a = Gaussian.ppf(int256(rX.divWadUp(L)));
     int256 b = Gaussian.ppf(int256(rY.divWadUp(L.mulWadUp(K))));
 
-    int256 pdf_a = Gaussian.pdf(a);
-    int256 pdf_b = Gaussian.pdf(b);
+    int256 pdfA = Gaussian.pdf(a);
+    int256 pdfB = Gaussian.pdf(b);
 
-    int256 term1 = x * 1 ether / (int256(L_squared) * (pdf_a) / 1 ether);
+    int256 term1 = x * 1 ether / (int256(lSquared) * (pdfA) / 1 ether);
 
-    int256 term2a = mu * int256(L_squared) / 1 ether;
-    int256 term2b = term2a * pdf_b / 1 ether;
+    int256 term2a = mu * int256(lSquared) / 1 ether;
+    int256 term2b = term2a * pdfB / 1 ether;
     int256 term2 = y * 1 ether / term2b;
 
     return -term1 - term2;
@@ -343,17 +343,17 @@ function computeTfDL(bytes memory args, uint256 L) pure returns (int256) {
 function computeTfDReserveX(bytes memory args, uint256 rX) pure returns (int256) {
     (, uint256 L,,,) = abi.decode(args, (uint256, uint256, uint256, uint256, uint256));
     int256 a = Gaussian.ppf(toInt(rX * 1e18 / L));
-    int256 pdf_a = Gaussian.pdf(a);
-    int256 result = 1e36 / (int256(L) * pdf_a / 1e18);
+    int256 pdfA = Gaussian.pdf(a);
+    int256 result = 1e36 / (int256(L) * pdfA / 1e18);
     return result;
 }
 
 function computeTfDReserveY(bytes memory args, uint256 rY) pure returns (int256) {
     (, uint256 L, uint256 K,,) = abi.decode(args, (uint256, uint256, uint256, uint256, uint256));
-    int256 KL = int256(K * L / 1e18);
-    int256 a = Gaussian.ppf(int256(rY) * 1e18 / KL);
-    int256 pdf_a = Gaussian.pdf(a);
-    int256 result = 1e36 / (KL * pdf_a / 1e18);
+    int256 kl = int256(K * L / 1e18);
+    int256 a = Gaussian.ppf(int256(rY) * 1e18 / kl);
+    int256 pdfA = Gaussian.pdf(a);
+    int256 result = 1e36 / (kl * pdfA / 1e18);
     return result;
 }
 
@@ -381,16 +381,16 @@ function calcSlope(uint256 reserveX_, uint256 reserveY_, uint256 totalLiquidity_
     returns (int256)
 {
     uint256 newReserveY = reserveY_ + uint256(ptToMarket);
-    uint256 b_i = newReserveY * 1e36 / (strike_ * totalLiquidity_);
+    uint256 bI = newReserveY * 1e36 / (strike_ * totalLiquidity_);
 
-    if (b_i > 1e18) {
+    if (bI > 1e18) {
         return -1;
     }
 
-    int256 b = Gaussian.ppf(toInt(b_i));
-    int256 pdf_b = Gaussian.pdf(b);
+    int256 b = Gaussian.ppf(toInt(bI));
+    int256 pdfB = Gaussian.pdf(b);
 
-    int256 slope = (int256(strike_ * totalLiquidity_) * pdf_b / 1e36);
+    int256 slope = (int256(strike_ * totalLiquidity_) * pdfB / 1e36);
 
     int256 dxdy = computedXdY(reserveX_, newReserveY);
 
@@ -405,9 +405,9 @@ function calcMaxPtOut(
     uint256 sigma_,
     uint256 tau_
 ) pure returns (uint256) {
-    int256 currentTF = computeTradingFunction(reserveX_, reserveY_, totalLiquidity_, strike_, sigma_, tau_);
+    int256 currentTf = computeTradingFunction(reserveX_, reserveY_, totalLiquidity_, strike_, sigma_, tau_);
 
-    uint256 maxProportion = uint256(int256(1e18) - currentTF) * 1e18 / (2 * 1e18);
+    uint256 maxProportion = uint256(int256(1e18) - currentTf) * 1e18 / (2 * 1e18);
 
     uint256 maxPtOut = reserveY_ * maxProportion / 1e18;
 
